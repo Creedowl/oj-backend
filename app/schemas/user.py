@@ -17,5 +17,5 @@ class UserDB(UserBase):
         orm_mode = True
 
 
-class User(UserDB):
+class UserOut(UserDB):
     pass
