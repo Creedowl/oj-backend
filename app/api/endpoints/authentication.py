@@ -4,13 +4,13 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.db.user import user_authenticate
-from app.schemas.token import Token
-from app.utils.security import hash_password, generate_jwt
+from app.schemas.user import UserOut
+from app.utils.security import generate_jwt
 
 router = APIRouter()
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=UserOut)
 def login(
         db: Session = Depends(get_db),
         form_data: OAuth2PasswordRequestForm = Depends()
@@ -22,7 +22,12 @@ def login(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=hash_password(form_data.username, form_data.password),
+            detail="user not found",
             headers={"WWW-Authenticate": "Bearer"}
         )
-    return {"access_token": generate_jwt({"sub": user.student_id}), "token_type": "bearer"}
+    return {
+        "access_token": generate_jwt({"sub": user.student_id}),
+        "token_type": "bearer",
+        "name": user.name,
+        "student_id": user.student_id
+    }

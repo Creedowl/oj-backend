@@ -17,5 +17,6 @@ class UserDB(UserBase):
         orm_mode = True
 
 
-class UserOut(UserDB):
-    pass
+class UserOut(UserBase):
+    access_token: str
+    token_type: str
