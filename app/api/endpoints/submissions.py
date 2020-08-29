@@ -1,6 +1,5 @@
 import os
 import uuid
-from typing import List
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from sqlalchemy.orm import Session
@@ -9,14 +8,14 @@ from app.db.database import get_db
 from app.db.lab import lab_get
 from app.db.submission import submission_create, submission_get_list, submission_update, submission_get
 from app.models.user import User
-from app.schemas.submission import SubmissionOut, SubmissionUpdate
+from app.schemas.submission import SubmissionOut, SubmissionUpdate, SubmissionsOut
 from app.utils import config
 from app.utils.security import get_current_user
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[SubmissionOut],
+@router.get("/", response_model=SubmissionsOut,
             response_model_exclude=["code", "result", "log"])
 def get_submissions(
         db: Session = Depends(get_db),
@@ -28,7 +27,13 @@ def get_submissions(
     """
     get submissions according to the given filter
     """
-    return submission_get_list(db, offset, limit, lab_id, user_id)
+    submissions = submission_get_list(db, offset, limit, lab_id, user_id)
+    return {
+        "total": submissions["count"],
+        "limit": limit,
+        "offset": offset,
+        "submissions": submissions["submissions"]
+    }
 
 
 @router.get("/{submission_id}", response_model=SubmissionOut)
@@ -39,7 +44,11 @@ def get_submission(*, db: Session = Depends(get_db), submission_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Submission '{submission_id}' not found"
         )
-    return submission
+    return {
+        **submission.__dict__,
+        "student_id": submission.user.student_id,
+        "lab_name": submission.lab.name
+    }
 
 
 @router.post("/submit/{lab_id}/", response_model=SubmissionOut)

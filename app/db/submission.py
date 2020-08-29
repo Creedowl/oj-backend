@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional, Dict
 
 from sqlalchemy.orm import Session
 
@@ -29,13 +29,14 @@ def submission_get_list(
         limit: int = 100,
         lab_id: int = None,
         user_id: int = None
-) -> List[Submission]:
+) -> Dict:
     fil = []
     if lab_id is not None:
         fil.append(Submission.lab_id == lab_id)
     if user_id is not None:
         fil.append(Submission.user_id == user_id)
-    return db.query(Submission).filter(*fil).offset(offset).limit(limit).all()
+    query = db.query(Submission).filter(*fil).order_by(Submission.id.desc())
+    return {"count": query.count(), "submissions": query.offset(offset).limit(limit).all()}
 
 
 def submission_update(
