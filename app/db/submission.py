@@ -3,6 +3,7 @@ from typing import Optional, Dict
 from sqlalchemy.orm import Session
 
 from app.models.submission import Submission
+from app.models.user import User
 from app.schemas.submission import SubmissionUpdate
 
 
@@ -14,12 +15,14 @@ def submission_create(db: Session, data: dict) -> Submission:
     return save
 
 
-def submission_get(db: Session, submission_id: int, filename: str = None) \
+def submission_get(db: Session, submission_id: int, filename: str = None, user: User = None) \
         -> Optional[Submission]:
     fil = [Submission.id == submission_id]
     # filename is an optional filter, used by judge server for updating
     if filename is not None:
         fil.append(Submission.filename == filename)
+    if user is not None and not user.is_admin:
+        fil.append(Submission.user_id == user.id)
     return db.query(Submission).filter(*fil).first()
 
 

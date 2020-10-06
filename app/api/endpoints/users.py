@@ -3,12 +3,12 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.db.user import user_get, user_add
-from app.schemas.user import UserCreate, UserOut
+from app.schemas.user import UserCreate, UserOut, UserDB
 
 router = APIRouter()
 
 
-@router.post("/register", response_model=UserOut, response_model_exclude=["id"])
+@router.post("/register", response_model=UserDB, response_model_exclude=["id"])
 def register(
         *,
         db: Session = Depends(get_db),

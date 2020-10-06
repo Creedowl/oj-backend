@@ -29,5 +29,6 @@ def login(
         "access_token": generate_jwt({"sub": user.student_id}),
         "token_type": "bearer",
         "name": user.name,
-        "student_id": user.student_id
+        "student_id": user.student_id,
+        "is_admin": user.is_admin
     }

@@ -30,7 +30,8 @@ def user_add(db: Session, user_in: UserCreate) -> User:
     user = User(
         name=user_in.name,
         student_id=user_in.student_id,
-        hashed_password=hash_password(user_in.student_id, user_in.password)
+        hashed_password=hash_password(user_in.student_id, user_in.password),
+        is_admin=False
     )
     # TODO: Exception handler
     db.add(user)

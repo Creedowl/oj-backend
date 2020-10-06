@@ -37,8 +37,13 @@ def get_submissions(
 
 
 @router.get("/{submission_id}", response_model=SubmissionOut)
-def get_submission(*, db: Session = Depends(get_db), submission_id: int):
-    submission = submission_get(db, submission_id)
+def get_submission(
+        *,
+        db: Session = Depends(get_db),
+        submission_id: int,
+        user: User = Depends(get_current_user),
+):
+    submission = submission_get(db, submission_id, user=user)
     if not submission:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

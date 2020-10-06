@@ -11,6 +11,7 @@ class UserCreate(UserBase):
 
 
 class UserDB(UserBase):
+    is_admin: bool
     id: int = None
 
     class Config:
@@ -18,5 +19,6 @@ class UserDB(UserBase):
 
 
 class UserOut(UserBase):
+    is_admin: bool
     access_token: str
     token_type: str
