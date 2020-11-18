@@ -14,6 +14,6 @@ class Submission(Base):
     result = Column(String)
     log = Column(String)
     user_id = Column(Integer, ForeignKey("user.id"))
-    user = relationship("User", backref="submissions")
+    user = relationship("User", backref="users")
     lab_id = Column(Integer, ForeignKey("lab.id"))
     lab = relationship("Lab", backref="labs")

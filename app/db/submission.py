@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from sqlalchemy.orm import Session
 
@@ -54,3 +54,9 @@ def submission_update(
     db.commit()
     db.refresh(submission)
     return submission
+
+
+def submission_export(db: Session, class_id: int) -> List[Submission]:
+    subQ = db.query(User).filter(User.classU_id == class_id).subquery()
+    submissions = db.query(Submission).filter(Submission.user_id == subQ.c.id)
+    return submissions.all()
