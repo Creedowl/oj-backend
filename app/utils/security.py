@@ -17,11 +17,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def hash_password(student_id, raw_password) -> str:
+def hash_password(student_id: str, raw_password: str) -> str:
     return pwd_context.hash(student_id + raw_password + config.PASSWORD_SALT)
 
 
-def verify_password(student_id, raw_password, hashed_password) -> bool:
+def verify_password(student_id: str, raw_password: str, hashed_password: str) -> bool:
     origin = student_id + raw_password + config.PASSWORD_SALT
     return pwd_context.verify(origin, hashed_password)
 

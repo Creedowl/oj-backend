@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.db.user import user_authenticate
+from app.models.user import User
+from app.schemas.token import Token
 from app.schemas.user import UserOut
-from app.utils.security import generate_jwt
+from app.utils.security import generate_jwt, get_current_user
 
 router = APIRouter()
 
@@ -18,17 +20,29 @@ def login(
     """
     OAuth2 login part, use JWT as access token
     """
-    user = user_authenticate(db, form_data.username, form_data.password)
-    if not user:
+    try:
+        user = user_authenticate(db, form_data.username, form_data.password)
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="user not found",
-            headers={"WWW-Authenticate": "Bearer"}
+            detail=str(e)
+        )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+            # headers={"WWW-Authenticate": "Bearer"}
         )
     return {
         "access_token": generate_jwt({"sub": user.student_id}),
         "token_type": "bearer",
-        "name": user.name,
-        "student_id": user.student_id,
-        "is_admin": user.is_admin
+        **user.__dict__
+    }
+
+
+@router.post("/refresh", response_model=Token)
+def refresh(user: User = Depends(get_current_user)):
+    return {
+        "access_token": generate_jwt({"sub": user.student_id}),
+        "token_type": "bearer"
     }
